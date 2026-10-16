@@ -1,0 +1,129 @@
+// Source code is decompiled from a .class file using FernFlower decompiler (from Intellij IDEA).
+import java.io.PrintStream;
+import java.util.Scanner;
+
+public class EjercicioAlgebra {
+   public EjercicioAlgebra() {
+   }
+
+   static Fraccion ingresarNumero(Scanner var0, String var1) {
+      while(true) {
+         System.out.print(var1);
+         String var2 = var0.nextLine().trim();
+
+         try {
+            if (var2.contains("/")) {
+               String[] var9 = var2.split("/");
+               if (var9.length != 2) {
+                  throw new NumberFormatException();
+               }
+
+               long var10 = Long.parseLong(var9[0].trim());
+               long var11 = Long.parseLong(var9[1].trim());
+               if (var11 == 0L) {
+                  System.out.print("Error: el denominador no puede ser cero.");
+                  continue;
+               }
+
+               return new Fraccion(var10, var11);
+            }
+
+            if (var2.contains(".")) {
+               int var3 = var2.length() - var2.indexOf(46) - 1;
+               long var4 = Long.parseLong(var2.replace(".", ""));
+               long var6 = (long)Math.pow((double)10.0F, (double)var3);
+               return new Fraccion(var4, var6);
+            }
+
+            return new Fraccion(Long.parseLong(var2), 1L);
+         } catch (NumberFormatException var8) {
+            System.out.println();
+            System.out.print("Dato incorrecto.");
+            System.out.print("Ingrese un número entero, decimal o fracción.");
+            System.out.print("Ejemplos: 5, 2.5, 3/4, -7/3");
+            System.out.println();
+         }
+      }
+   }
+
+   static void mostrarMatriz(String var0, Fraccion[][] var1) {
+      System.out.println();
+      System.out.println(var0);
+
+      for(int var2 = 0; var2 < 3; ++var2) {
+         System.out.print("[ ");
+
+         for(int var3 = 0; var3 < 3; ++var3) {
+            PrintStream var10000 = System.out;
+            String var10001 = String.valueOf(var1[var2][var3]);
+            var10000.print(var10001 + " ");
+         }
+
+         System.out.println("]");
+      }
+
+   }
+
+   public static void main(String[] var0) {
+      Scanner var1 = new Scanner(System.in);
+      System.out.print("======================================");
+      System.out.print("   FACTORIZACIÓN LU DE UNA MATRIZ 3x3");
+      System.out.print("           MÉTODO DE DOOLITTLE");
+      System.out.print("======================================");
+      System.out.println();
+      System.out.print("Ejemplos de datos válidos:");
+      System.out.print("Entero:     5");
+      System.out.print("Decimal:    2.5");
+      System.out.print("Fracción:   3/4");
+      System.out.print("Fracción:  -5/2");
+      System.out.println();
+      System.out.print("--------------------------------------");
+      Fraccion[][] var2 = new Fraccion[3][3];
+
+      for(int var3 = 0; var3 < 3; ++var3) {
+         for(int var4 = 0; var4 < 3; ++var4) {
+            var2[var3][var4] = ingresarNumero(var1, "Ingrese a" + (var3 + 1) + (var4 + 1) + ": ");
+         }
+      }
+
+      Fraccion[][] var7 = new Fraccion[3][3];
+      Fraccion[][] var8 = new Fraccion[3][3];
+
+      for(int var5 = 0; var5 < 3; ++var5) {
+         for(int var6 = 0; var6 < 3; ++var6) {
+            var7[var5][var6] = new Fraccion(var5 == var6 ? 1L : 0L, 1L);
+            var8[var5][var6] = new Fraccion(0L, 1L);
+         }
+      }
+
+      var8[0][0] = var2[0][0];
+      var8[0][1] = var2[0][1];
+      var8[0][2] = var2[0][2];
+      if (var8[0][0].esCero()) {
+         System.out.println();
+         System.out.print("No se puede realizar la factorización LU.");
+         System.out.print("El primer pivote es cero.");
+      } else {
+         var7[1][0] = var2[1][0].dividir(var8[0][0]);
+         var7[2][0] = var2[2][0].dividir(var8[0][0]);
+         var8[1][1] = var2[1][1].restar(var7[1][0].multiplicar(var8[0][1]));
+         var8[1][2] = var2[1][2].restar(var7[1][0].multiplicar(var8[0][2]));
+         if (var8[1][1].esCero()) {
+            System.out.println();
+            System.out.print("No se puede realizar la factorización LU.");
+            System.out.print("El segundo pivote es cero.");
+         } else {
+            var7[2][1] = var2[2][1].restar(var7[2][0].multiplicar(var8[0][1])).dividir(var8[1][1]);
+            var8[2][2] = var2[2][2].restar(var7[2][0].multiplicar(var8[0][2])).restar(var7[2][1].multiplicar(var8[1][2]));
+            mostrarMatriz("MATRIZ A:", var2);
+            mostrarMatriz("MATRIZ L:", var7);
+            mostrarMatriz("MATRIZ U:", var8);
+            System.out.println();
+            System.out.print("======================================");
+            System.out.print("FACTORIZACIÓN:");
+            System.out.print("A = L × U");
+            System.out.print("======================================");
+         }
+      }
+   }
+}
